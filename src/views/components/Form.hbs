@@ -1,0 +1,15 @@
+{{#if img}}
+    <form action="/edit/{{img.id}}" method="post" enctype="multipart/form-data">
+        <div class="my-3">
+            <input class="form-control" type="file" id="formFile" name="image">
+            <input class="btn btn-success my-3" type="submit" value="Update">
+        </div>
+    </form>
+{{else}}
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="my-3">
+            <input class="form-control" type="file" id="formFile" name="image">
+            <input class="btn btn-success my-3" type="submit" value="Submit">
+        </div>
+    </form>
+{{/if}}

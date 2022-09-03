@@ -1,0 +1,13 @@
+{{#if img}}
+    <h2 class="text-center">Edit Image</h2>
+
+    {{> Card}}
+
+    {{> Form}}
+{{else}}
+    <h2 class="text-center">Upload Images</h2>
+
+    {{> Form}}
+
+    {{> Card}}
+{{/if}}

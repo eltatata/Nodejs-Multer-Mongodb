@@ -1,0 +1,25 @@
+{{#if img}}
+    <div class="d-flex flex-wrap justify-content-center align-items-start">
+        {{#each img }}
+        <div class="card m-2" style="width: 18rem;">
+            <img src="/images/uploads/{{this}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{this}}</h5>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+{{else}}
+    <div class="d-flex flex-wrap justify-content-center align-items-start">
+        {{#each imgs }}
+        <div class="card m-2" style="width: 18rem;">
+            <img src="images/uploads/{{this}}" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">{{this}}</h5>
+                <a href="/edit/{{this}}" class="btn btn-warning">Edit</a>
+                <a href="/delete/{{this}}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+{{/if}}
