@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const { v4: uuidv4 } = require('uuid');
+const Img = require("../models/Img");
 
 // establecer como se guardaran las imagenes y donde se guardaran
 const storage = multer.diskStorage({
@@ -39,24 +40,30 @@ const upload = multer({
     }
 }).single("image");
 
-const renderHome = (req, res) => {
-    // mostrar en consola las imagenes que hay '../public/images/uploads'
-    console.log({ imgs: fs.readdirSync(path.join(__dirname, '../public/images/uploads')) });
+const renderHome = async (req, res) => {
+    // mostrar en consola las imagenes que hay en la base de datos
+    console.log(await Img.find().lean());
+    const imgs = await Img.find().lean();
 
     // renderizar la vista home
-    res.render("home", { title: "Express", imgs: fs.readdirSync(path.join(__dirname, '../public/images/uploads')) });
+    res.render("home", { title: "Express", imgs: imgs });
 }
 
 // manejar con formulario
-const uploadImage = (req, res) => {
+const uploadImage =(req, res) => {
     // console.log(req.file);
 
     // manejo de errores
-    upload(req, res, (err) => {
+    upload(req, res, async (err) => {
         try {
             if (err instanceof multer.MulterError) {
                 throw new Error('Fallo el procesamiento del archivo, Error: ' + `${err.message}`.red);
             }
+
+            // GUARDAR EL NOMNRE DE LA IMAGEN EN LA DB
+            const img = new Img({name: req.file.filename});
+            await img.save();
+            console.log(img);
 
             console.log(req.file);
         } catch (error) {
@@ -67,13 +74,18 @@ const uploadImage = (req, res) => {
     });
 }
 
-const editForm = (req, res) => {
-    // id del imagen pasador por params
-    const editImage = req.params;
+const editForm = async (req, res) => {
+    console.log(req.params.id);
 
-    console.log({ img: editImage });
-    // renderizar con el id de la imagen
-    res.render("home", { img: editImage });
+    try {
+        const img = await Img.findById(req.params.id).lean();
+
+        console.log(img);
+
+        res.render("home", { img });
+    } catch (error) {
+        console.log(error.message);
+    }
 }
 
 const editImage = (req, res) => {
@@ -100,17 +112,20 @@ const editImage = (req, res) => {
     });
 }
 
-const deleteImage = (req, res) => {
-    // console.log(req.params.id);
+const deleteImage = async (req, res) => {
+    console.log(req.params.id);
 
     try {
-        const image = req.params.id;
+        const image = await Img.findById(req.params.id);
 
-        // eliminar la imagen
-        const dirFile = path.join(__dirname, `../public/images/uploads/${image}`);
+        // eliminar la imagen del servidor
+        const dirFile = path.join(__dirname, `../public/images/uploads/${image.name}`);
         fs.unlinkSync(dirFile);
 
-        console.log(`Se elimino la imagen: ${image}`.yellow);
+        // eliminar la info de la imagen de DB
+        await image.remove(image);
+
+        console.log(`Se elimino la imagen: ${image.name}`.yellow);
     } catch (error) {
         console.log(error.message);
     } finally {
